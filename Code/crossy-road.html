@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+    <title>Crossy Road</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="../libs/jquery-ui/jquery-ui.css" />
+    <link rel="stylesheet" href="../css/main.css" />
+
+    <script src="../libs/jquery-3.3.1/jquery-3.3.1.js"></script>
+    <script src="../libs/jquery-ui/jquery-ui.js"></script>
+
+    <script src="../libs/three.js/three.js"></script>
+    <script src="../libs/three.js/three.min.js"></script>
+    <script src="../libs/three.js/controls/TransformControls.js"></script>
+    <script src="../libs/three.js/controls/OrbitControls.js"></script>
+    
+
+    <script src="../libs/tween.js/tween.js"></script>
+    <script src="../libs/keyframe.js/keyframe.js"></script>
+
+    <script src="crossy-road.js" ></script>
+
+    <script type="text/javascript">
+
+    function initControls()
+    {
+        $("input[name=animation]").click(
+            function() {
+                var id = $("input[name=animation]:checked").attr('value');
+                changeAnimation(id);
+            }
+        );
+
+    }
+
+        $(document).ready(
+                function() {
+
+                    var canvas = document.getElementById("webglcanvas");
+                    createScene(canvas);
+
+                    document.addEventListener("keydown", moveCharacter);
+
+                    run();
+                }
+        );
+
+    </script>
+
+</head>
+<body>
+
+    <canvas id="webglcanvas" width=800 height=600></canvas>
+
+
+</body>
+</html>
