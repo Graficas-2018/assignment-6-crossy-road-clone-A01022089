@@ -16,43 +16,151 @@ var canvas = null;
 
 var movement = null;
 var treeCol = null;
-var trees = [];
+var trees = []; //collider
+var treeModel = []; //object
+var grass = null;
 
 var carCol = null;
-var cars = [];
-var carsMesh = [];
+var cars = []; //colliders
+var carsMesh = []; //object
+
+var water = []; //colliders
+var waterModel = []; //object
+var logs = []; //collider
+var logMesh = []; //model
+var logCol = null;
+
+
+function getRandom(min, max)
+{
+    return Math.random() * max - min;
+}
 
 function firstSection()
 {
+    //floor
+    material = new THREE.MeshPhongMaterial({ color: 0x006f00 });
+    geometry = new THREE.CubeGeometry(200, 0.1, 100);
+    grass = new THREE.Mesh(geometry,material);  
+    grass.position.set(0,-4,-30);
+    scene.add(grass);
+
+
+    //trees
     material = new THREE.MeshPhongMaterial({ color: 0xA03f00 });
     geometry = new THREE.CubeGeometry(4, 8, 4);
     var tree = new THREE.Mesh(geometry, material);
     tree.position.set(-10,0,-10);
+    scene.add(tree);
+
+    treeModel.push(tree);
 
     // Collider
     treeCol = new THREE.Box3().setFromObject(tree);
     //var treeHelper = new THREE.BoxHelper(tree, 0x00ff00);
     trees.push(treeCol);
 
-    scene.add(tree);
+    for(var i = 0; i < 30; i+=1)
+    {
+        tree = new THREE.Mesh(geometry, material);
+        tree.position.set(getRandom(100, 200), 0, -getRandom(10, 80));
+        treeModel.push(tree)
+        scene.add(tree);
+
+        treeCol = new THREE.Box3().setFromObject(tree);
+        trees.push(treeCol);
+    }
+
 }
 
-
-function secondSection()
+function secondSection() //21 cars
 {
-  var material = new THREE.MeshPhongMaterial({ color: 0xAA0000 });
-  var geometry = new THREE.CubeGeometry(8, 5, 2);
-  var car = new THREE.Mesh(geometry, material);
-  car.position.set(2,-2,-20);
+    material = new THREE.MeshPhongMaterial({ color: 0x515151 });
+    geometry = new THREE.CubeGeometry(200, 0.1, 80);
+    var street = new THREE.Mesh(geometry,material);  
+    street.position.set(0,-4,-120); //-80(graass) -40(half street) = -80 to -160 z
+    scene.add(street);
 
-  // Collider
-  carCol = new THREE.Box3().setFromObject(car);
-  var carHelper = new THREE.BoxHelper(car, 0x00ff00);
+    var material = new THREE.MeshPhongMaterial({ color: 0xAA0000 });
+    var geometry = new THREE.CubeGeometry(8, 5, 2);
+    var car = new THREE.Mesh(geometry, material);
+    car.position.set(2,-2,-80);
 
-  carsMesh.push(car);
-  cars.push(carCol);
+    // Collider
+    carCol = new THREE.Box3().setFromObject(car);
+    var carHelper = new THREE.BoxHelper(car, 0x00ff00);
 
-  scene.add(car);
+    carsMesh.push(car);
+    cars.push(carCol);
+
+    scene.add(car);
+
+    for(var i = 0; i < 20; i+=1)
+    {
+        car = new THREE.Mesh(geometry, material);
+        car.position.set(getRandom(100, 200), -2, -getRandom(2, 82)-80);//-80 to -160 z
+        carsMesh.push(car)
+        scene.add(car);
+
+        carCol = new THREE.Box3().setFromObject(car);
+        cars.push(carCol);
+    }
+}
+
+function thirdSection()
+{
+    material = new THREE.MeshPhongMaterial({ color: 0x1fc6ea });
+    geometry = new THREE.CubeGeometry(200, 0.1, 80);
+    var river = new THREE.Mesh(geometry,material);  
+    river.position.set(0,-3.9,-200); //-80(grass) -80 (street) - 40 (halfRiver) = -160 to -240 z
+    scene.add(river);
+
+    waterModel.push(river);
+    var riverCol = new THREE.Box3().setFromObject(river);
+    water.push(riverCol);
+
+    var material = new THREE.MeshPhongMaterial({ color: 0xea670f });
+    var geometry = new THREE.CubeGeometry(8, 0.4, 5);
+
+    for( var j = 0; j < 2; j+=1)
+    {
+        for(var i = 0; i < 16; i+=1)
+        {
+            log = new THREE.Mesh(geometry, material);
+            log.position.set(getRandom(100, 200), -3.9, /*-getRandom(2, 82)*/(-i*5)-162.5); //-166 to -240 z
+            logMesh.push(log)
+            scene.add(log);
+
+            logCol = new THREE.Box3().setFromObject(log);
+            logs.push(logCol);
+        }
+    }
+
+    
+}
+
+function fourthSection() //21 cars
+{
+    material = new THREE.MeshPhongMaterial({ color: 0x515151 });
+    geometry = new THREE.CubeGeometry(200, 0.1, 80);
+    var street = new THREE.Mesh(geometry,material);  
+    street.position.set(0,-4,-280); //-240 (river) -40(half street) = -241 to -320 z
+    scene.add(street);
+
+    material = new THREE.MeshPhongMaterial({ color: 0xAA0000 });
+    geometry = new THREE.CubeGeometry(8, 5, 2);
+    
+
+    for(var i = 0; i < 20; i+=1)
+    {
+        car = new THREE.Mesh(geometry, material);
+        car.position.set(getRandom(100, 200), -2, -getRandom(2, 82)-241);//-80 to -160 z
+        carsMesh.push(car)
+        scene.add(car);
+
+        carCol = new THREE.Box3().setFromObject(car);
+        cars.push(carCol);
+    }
 }
 
 function moveCharacter(event)
@@ -60,24 +168,26 @@ function moveCharacter(event)
     switch(event.keyCode)
     {
         case 38:
-            character.position.z -= 2;
+            character.position.z -= 3;
             jumpAnimator.start();
             movement = 'front';
             break;
 
         case 37:
-            character.position.x -= 2;
+            if(character.position.x > -99)
+                character.position.x -= 3;
             jumpAnimator.start();
             movement = 'left';
             break;
 
         case 39:
-            character.position.x += 2;
+            if(character.position.x < 99)
+            character.position.x += 3;
             jumpAnimator.start();
             movement = 'right';
             break;
         case 40:
-            character.position.z += 2;
+            character.position.z += 3;
             jumpAnimator.start();
             movement = 'back';
             break;
@@ -89,6 +199,7 @@ function detectCollision()
     characterHelper.update();
     characterBox = new THREE.Box3().setFromObject(character);
 
+    //trees collition
     for (var t of trees)
     {
         if (characterBox.intersectsBox(t))
@@ -98,25 +209,26 @@ function detectCollision()
             switch(movement)
             {
                 case 'front':
-                        character.position.z += 2;
-                        break;
+                    character.position.z += 3;
+                    break;
                 case 'left':
-                        character.position.x += 2;
-                        break;
+                    character.position.x += 3;
+                    break;
                 case 'right':
-                        character.position.x -= 2;
-                        break;
+                    character.position.x -= 3;
+                    break;
                 case 'back':
-                        character.position.z -= 2;
-                        break;
+                    character.position.z -= 3;
+                    break;
 
                 default:
-                        break;
+                    break;
             }
         }
     }
 
 
+    //cars collition
     var index = 0;
     for (var c of cars)
     {
@@ -129,7 +241,40 @@ function detectCollision()
             camera.position.set(0, 6, 25);
 
         }
+        
         index += 1;
+    }
+
+    var logCollition = false;
+    index = 0;
+    for (var l of logs)
+    {
+        l = new THREE.Box3().setFromObject(logMesh[index]);
+        if (characterBox.intersectsBox(l))
+        {
+            console.log('Collide with log');
+            logCollition = true;
+            //scene.remove(character);
+
+            //move with the log
+            if(index % 2 == 0 && character.position.x < 100)
+                character.position.x += 0.2;
+            if(index % 2 != 0 && character.position.x > -100)
+                character.position.x -= 0.2;
+
+        }
+        index += 1;
+    }
+
+    for(var w of water)
+    {
+        if(characterBox.intersectsBox(w) && logCollition == false)
+        {
+            console.log("Fall in the river");
+            character.position.set(0,-3,0);
+            camera.position.set(0, 6, 25);
+
+        }
     }
 }
 
@@ -174,14 +319,58 @@ function run()
     // Update the camera controller
     orbitControls.update();
 
+    var index = 0;
     for (var c of carsMesh)
     {
-      c.position.x += 0.05 * deltat;
-      if( c.position.x > 100)
+      if(index < 21)
       {
-        c.position.x -= 200;
+        c.position.x += 0.04 * deltat;
+        if( c.position.x > 100)
+        {
+          c.position.x -= 200;
+        }
       }
+      else
+      {
+          if(index % 2 == 0)
+          {
+            c.position.x -= 0.04 * deltat;
+            if( c.position.x < -100)
+            {
+              c.position.x += 200;
+            }
+          }
+          else
+          {
+            c.position.x += 0.04 * deltat;
+            if( c.position.x > 100)
+            {
+              c.position.x -= 200;
+            }
+          }
+
+      }
+      index += 1;
     }
+
+    //logs movement
+    for ( var i = 0; i < logMesh.length; i+=2) //pair
+    {
+        logMesh[i].position.x += 0.2;//03 * deltat;
+        if( logMesh[i].position.x > 100)
+        {
+            logMesh[i].position.x -= 200;
+        }
+    }
+    for ( var i = 1; i < logMesh.length; i+=2) //pair
+    {
+        logMesh[i].position.x -= 0.2;//03 * deltat;
+        if( logMesh[i].position.x < -100)
+        {
+            logMesh[i].position.x += 200;
+        }
+    }
+    
 
 
 }
@@ -253,7 +442,7 @@ function createScene(canvas)
     mesh.position.y = -4.02;
 
     // Add the mesh to our group
-    group.add( mesh );
+    //group.add( mesh );
     mesh.castShadow = false;
     mesh.receiveShadow = true;
 
@@ -272,6 +461,8 @@ function createScene(canvas)
 
     firstSection();
     secondSection();
+    thirdSection();
+    fourthSection();
 
     // Create the animations
     moveAnimation();
