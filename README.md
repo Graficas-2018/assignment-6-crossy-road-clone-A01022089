@@ -19,3 +19,5 @@ Rubric:
 3. The different sections have complete functionality.
 4. The character moves correctly, and the score increases when it moves forward.
 5. The game restarts when the character reaches the last tile.
+
+**Grade: 100**
