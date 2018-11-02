@@ -7,6 +7,10 @@ orbitControls = null,
 character = null, characterBox = null, characterHelper = null;
 var currentTime = Date.now();
 
+var score = null; //actual score
+var best = null; //high score
+var actualBest = null; //max distance in the actual try
+
 
 var jumpAnimator = null;
 
@@ -30,6 +34,17 @@ var logs = []; //collider
 var logMesh = []; //model
 var logCol = null;
 
+function death()
+{
+    console.log(document.getElementById("highScore").innerHTML);
+    document.getElementById("highScore").innerHTML = "Highscore: "+score;
+    if (score > best)
+    {
+        best = score;
+    }
+    score = 0;
+    actualBest = 0;
+}
 
 function getRandom(min, max)
 {
@@ -84,7 +99,7 @@ function secondSection() //21 cars
     var material = new THREE.MeshPhongMaterial({ color: 0xAA0000 });
     var geometry = new THREE.CubeGeometry(8, 5, 2);
     var car = new THREE.Mesh(geometry, material);
-    car.position.set(2,-2,-80);
+    car.position.set(2,-2,-82);
 
     // Collider
     carCol = new THREE.Box3().setFromObject(car);
@@ -98,7 +113,7 @@ function secondSection() //21 cars
     for(var i = 0; i < 20; i+=1)
     {
         car = new THREE.Mesh(geometry, material);
-        car.position.set(getRandom(100, 200), -2, -getRandom(2, 82)-80);//-80 to -160 z
+        car.position.set(getRandom(100, 200), -2, -getRandom(0, 76)-82);//-80 to -160 z
         carsMesh.push(car)
         scene.add(car);
 
@@ -154,12 +169,110 @@ function fourthSection() //21 cars
     for(var i = 0; i < 20; i+=1)
     {
         car = new THREE.Mesh(geometry, material);
-        car.position.set(getRandom(100, 200), -2, -getRandom(2, 82)-241);//-80 to -160 z
+        car.position.set(getRandom(100, 200), -2, -getRandom(0, 76)-242);//-80 to -160 z
         carsMesh.push(car)
         scene.add(car);
 
         carCol = new THREE.Box3().setFromObject(car);
         cars.push(carCol);
+    }
+}
+
+function fifthSection()
+{
+    //fifthSection river
+    material = new THREE.MeshPhongMaterial({ color: 0x1fc6ea });
+    geometry = new THREE.CubeGeometry(200, 0.1, 30);
+    var river = new THREE.Mesh(geometry,material);  
+    river.position.set(0,-3.9,-335); ////-320 z to -350
+    scene.add(river);
+
+    waterModel.push(river);
+    var riverCol = new THREE.Box3().setFromObject(river);
+    water.push(riverCol);
+
+    //Logs for the river
+
+    var material = new THREE.MeshPhongMaterial({ color: 0xea670f });
+    var geometry = new THREE.CubeGeometry(8, 0.4, 5);
+
+    for( var j = 0; j < 2; j+=1)
+    {
+        for(var i = 0; i < 6; i+=1)
+        {
+            log = new THREE.Mesh(geometry, material);
+            log.position.set(getRandom(100, 200), -3.9, (-i*5)-322.5);
+            logMesh.push(log)
+            scene.add(log);
+
+            logCol = new THREE.Box3().setFromObject(log);
+            logs.push(logCol);
+        }
+    }
+
+    //trees section
+    material = new THREE.MeshPhongMaterial({ color: 0x006f00 });
+    geometry = new THREE.CubeGeometry(200, 0.1, 30);
+    grass = new THREE.Mesh(geometry,material);  
+    grass.position.set(0,-4,-365); //-350 to -380
+    scene.add(grass);
+
+    //trees
+    material = new THREE.MeshPhongMaterial({ color: 0xA03f00 });
+    geometry = new THREE.CubeGeometry(4, 8, 4);
+
+    for(var i = 0; i < 20; i+=1)
+    {
+        var tree = new THREE.Mesh(geometry, material);
+        tree.position.set(getRandom(100, 200), 0, -getRandom(0, 26)-352); //
+        treeModel.push(tree)
+        scene.add(tree);
+
+        treeCol = new THREE.Box3().setFromObject(tree);
+        trees.push(treeCol);
+    }
+    
+    //street
+    material = new THREE.MeshPhongMaterial({ color: 0x515151 });
+    geometry = new THREE.CubeGeometry(200, 0.1, 30);
+    var street = new THREE.Mesh(geometry,material);  
+    street.position.set(0,-4,-395); //-380 to -410
+    scene.add(street);
+
+    var material = new THREE.MeshPhongMaterial({ color: 0xAA0000 });
+    var geometry = new THREE.CubeGeometry(8, 5, 2);
+
+    for(var i = 0; i < 12; i+=1)
+    {
+        var car = new THREE.Mesh(geometry, material);
+        car.position.set(getRandom(100, 200), -2, -getRandom(0, 26)-382);//-380 to -410
+        carsMesh.push(car)
+        scene.add(car);
+
+        carCol = new THREE.Box3().setFromObject(car);
+        cars.push(carCol);
+    }
+
+    //trees section
+    material = new THREE.MeshPhongMaterial({ color: 0x006f00 });
+    geometry = new THREE.CubeGeometry(200, 0.1, 20);
+    grass = new THREE.Mesh(geometry,material);  
+    grass.position.set(0,-4,-420); //-410 to -430
+    scene.add(grass);
+
+    //trees
+    material = new THREE.MeshPhongMaterial({ color: 0xA03f00 });
+    geometry = new THREE.CubeGeometry(4, 8, 4);
+
+    for(var i = 0; i < 20; i+=1)
+    {
+        var tree = new THREE.Mesh(geometry, material);
+        tree.position.set(getRandom(100, 200), 0, -getRandom(0, 16)-412); 
+        treeModel.push(tree)
+        scene.add(tree);
+
+        treeCol = new THREE.Box3().setFromObject(tree);
+        trees.push(treeCol);
     }
 }
 
@@ -220,7 +333,6 @@ function detectCollision()
                 case 'back':
                     character.position.z -= 3;
                     break;
-
                 default:
                     break;
             }
@@ -236,7 +348,7 @@ function detectCollision()
         if (characterBox.intersectsBox(c))
         {
             console.log('Collide with car');
-            //scene.remove(character);
+            death();
             character.position.set(0,-3,0);
             camera.position.set(0, 6, 25);
 
@@ -254,7 +366,6 @@ function detectCollision()
         {
             console.log('Collide with log');
             logCollition = true;
-            //scene.remove(character);
 
             //move with the log
             if(index % 2 == 0 && character.position.x < 100)
@@ -271,8 +382,9 @@ function detectCollision()
         if(characterBox.intersectsBox(w) && logCollition == false)
         {
             console.log("Fall in the river");
+            death();            
             character.position.set(0,-3,0);
-            camera.position.set(0, 6, 25);
+            camera.position.set(0, 160, 25);
 
         }
     }
@@ -371,7 +483,16 @@ function run()
         }
     }
     
+    if(character.position.z < actualBest)
+    {
+        actualBest = character.position.z; //new actual best
+        score += 1;
+        document.getElementById("score").innerHTML = "Score: "+score;
+    }
+    if(character.position.z < -433)
+        document.getElementById("clear").innerHTML = "CONGRATULATIONS YOU CLEARED THE GAME";
 
+        
 
 }
 
@@ -412,7 +533,7 @@ function createScene(canvas)
 
     // Add  a camera so we can view the scene
     camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 5000 );
-    camera.position.set(0, 6, 25);
+    camera.position.set(0, 160, 25);
     scene.add(camera);
 
     orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -435,14 +556,15 @@ function createScene(canvas)
     var color = 0xffffff;
 
     // Put in a ground plane to show off the lighting
-    geometry = new THREE.PlaneGeometry(200, 200, 50, 50);
+    geometry = new THREE.PlaneGeometry(200, 30, 50, 50);
     var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color:color, map:map, side:THREE.DoubleSide}));
 
     mesh.rotation.x = -Math.PI / 2;
     mesh.position.y = -4.02;
+    mesh.position.z = -445;
 
     // Add the mesh to our group
-    //group.add( mesh );
+    group.add( mesh );
     mesh.castShadow = false;
     mesh.receiveShadow = true;
 
@@ -463,6 +585,7 @@ function createScene(canvas)
     secondSection();
     thirdSection();
     fourthSection();
+    fifthSection();
 
     // Create the animations
     moveAnimation();
